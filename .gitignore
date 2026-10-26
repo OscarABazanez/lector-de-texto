@@ -1,0 +1,14 @@
+/src-tauri/target/
+/src-tauri/gen/
+
+# Secretos y archivos locales: la API key vive en el almacén de credenciales del sistema.
+.env
+.env.*
+*.log
+config.toml
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

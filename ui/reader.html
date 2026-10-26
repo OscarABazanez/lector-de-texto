@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lector</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="reader.css">
+<script src="vendor/katex/katex.min.js"></script>
+</head>
+<body>
+<header>
+  <span id="dot" class="dot"></span>
+  <span id="status">Listo</span>
+  <span id="detail" class="detail"></span>
+  <span id="badge" class="badge" hidden></span>
+</header>
+
+<div id="notice" class="notice" hidden></div>
+
+<main id="content">
+  <p class="placeholder">Pulsa el atajo (Ctrl+Alt+L por defecto) y selecciona una zona de la pantalla.</p>
+</main>
+
+<div id="caption" hidden></div>
+
+<footer>
+  <button id="prev" title="Oración anterior (Ctrl+←)" aria-label="Oración anterior">
+    <svg viewBox="0 0 24 24"><path d="M19 20 9 12l10-8v16Z"/><path d="M5 19V5"/></svg>
+  </button>
+  <button id="back2" class="words" title="Retroceder 2 palabras (←)" aria-label="Retroceder 2 palabras">
+    <svg viewBox="0 0 24 24"><path d="M11 19 4 12l7-7"/><path d="M19 19l-7-7 7-7"/></svg><span>2</span>
+  </button>
+  <button id="play" class="primary" title="Pausa / continuar (Espacio)" aria-label="Pausa o continuar">
+    <svg id="icon-pause" viewBox="0 0 24 24" style="display: none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+    <svg id="icon-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5-12-7.5Z"/></svg>
+  </button>
+  <button id="fwd2" class="words" title="Adelantar 2 palabras (→)" aria-label="Adelantar 2 palabras">
+    <span>2</span><svg viewBox="0 0 24 24"><path d="m13 5 7 7-7 7"/><path d="m5 5 7 7-7 7"/></svg>
+  </button>
+  <button id="next" title="Oración siguiente (Ctrl+→)" aria-label="Oración siguiente">
+    <svg viewBox="0 0 24 24"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg>
+  </button>
+  <button id="repeat" title="Repetir oración (R)" aria-label="Repetir oración">
+    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+  </button>
+  <button id="stop" title="Detener" aria-label="Detener">
+    <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+  </button>
+  <select id="rate" title="Velocidad" aria-label="Velocidad">
+    <option value="0.75">0.75×</option>
+    <option value="0.8">0.8×</option>
+    <option value="0.85">0.85×</option>
+    <option value="0.9">0.9×</option>
+    <option value="0.95">0.95×</option>
+    <option value="1" selected>1×</option>
+    <option value="1.25">1.25×</option>
+    <option value="1.5">1.5×</option>
+    <option value="1.75">1.75×</option>
+    <option value="2">2×</option>
+  </select>
+  <span class="spacer"></span>
+  <button id="copy" title="Copiar texto con LaTeX" aria-label="Copiar texto">
+    <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+  <button id="pin" title="Mantener encima de otras ventanas" aria-label="Mantener encima">
+    <svg viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+  </button>
+</footer>
+<script src="reader.js"></script>
+</body>
+</html>

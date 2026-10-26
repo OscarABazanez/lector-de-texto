@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ajustes · Lector</title>
+<link rel="stylesheet" href="reader.css">
+<style>
+  body { font-size: 14px; line-height: 1.45; }
+  main { padding: 16px 20px 8px; }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+  fieldset { border: 1px solid var(--border); border-radius: 10px; margin: 0 0 14px; padding: 10px 14px 12px; }
+  legend { padding: 0 6px; font-weight: 600; }
+  label { display: block; margin: 8px 0 4px; color: var(--muted); font-size: 13px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row > :first-child { flex: 1; min-width: 0; }
+  input[type=text], select.wide {
+    width: 100%; height: 32px; margin: 0; padding: 0 8px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg);
+    font: 14px "Segoe UI", system-ui, sans-serif;
+  }
+  input#hotkey { cursor: pointer; }
+  input#hotkey.capturing { outline: 2px solid var(--accent); }
+  .check { display: flex; gap: 8px; align-items: center; margin-top: 10px; color: var(--fg); font-size: 14px; }
+  .hint { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+  .btn {
+    width: auto; height: 32px; padding: 0 12px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--bg); color: var(--fg); white-space: nowrap; font: 13px "Segoe UI", system-ui, sans-serif;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .ok { color: #16a34a; }
+  .err { color: #dc2626; }
+  footer { justify-content: flex-end; gap: 10px; padding: 10px 20px; }
+  #msg { margin-right: auto; font-size: 13px; }
+  .engine { display: flex; gap: 16px; margin-top: 6px; }
+  .engine label { display: flex; gap: 6px; align-items: center; margin: 0; color: var(--fg); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ajustes</h1>
+
+  <fieldset>
+    <legend>Atajo de teclado</legend>
+    <input type="text" id="hotkey" readonly>
+    <p class="hint">Haz clic y pulsa la combinación nueva (por ejemplo Ctrl+Alt+L).</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Modelo (Claude)</legend>
+    <label for="api_key">API key de Anthropic</label>
+    <div class="row">
+      <input type="password" id="api_key" spellcheck="false" autocomplete="off">
+      <button class="btn" id="save_key">Guardar key</button>
+    </div>
+    <p class="hint" id="key_msg"></p>
+    <label for="model">Modelo</label>
+    <div class="row">
+      <input type="text" id="model" spellcheck="false">
+      <button class="btn" id="test_llm">Probar conexión</button>
+    </div>
+    <p class="hint" id="llm_msg"></p>
+    <label class="check"><input type="checkbox" id="adaptive"> Razonamiento adaptativo: el modelo decide cuánto pensar antes de responder (apagado responde más rápido)</label>
+    <label class="check"><input type="checkbox" id="precise"> Modo preciso: razona con más esfuerzo al transcribir (más exacto, más lento)</label>
+    <p class="hint">Las capturas se envían a Anthropic para transcribirlas. Sin internet se usa el OCR de Windows (sin fórmulas).</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Voz</legend>
+    <div class="engine">
+      <label><input type="radio" name="engine" value="system"> Voces del sistema</label>
+      <label><input type="radio" name="engine" value="edge"> Voces neuronales de Edge (online)</label>
+    </div>
+    <label for="voice_es">Voz en español</label>
+    <div class="row">
+      <select class="wide" id="voice_es"></select>
+      <button class="btn" id="test_es">Probar</button>
+    </div>
+    <label for="voice_en">Voz en inglés</label>
+    <div class="row">
+      <select class="wide" id="voice_en"></select>
+      <button class="btn" id="test_en">Probar</button>
+    </div>
+    <p class="hint" id="voice_msg"></p>
+    <label for="rate">Velocidad</label>
+    <select class="wide" id="rate">
+      <option value="0.75">0.75×</option>
+      <option value="0.8">0.8×</option>
+      <option value="0.85">0.85×</option>
+      <option value="0.9">0.9×</option>
+      <option value="0.95">0.95×</option>
+      <option value="1">1× (normal)</option>
+      <option value="1.25">1.25×</option>
+      <option value="1.5">1.5×</option>
+      <option value="1.75">1.75×</option>
+      <option value="2">2×</option>
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>Lectura</legend>
+    <label for="default_language">Idioma si no se puede detectar</label>
+    <select class="wide" id="default_language">
+      <option value="es">Español</option>
+      <option value="en">Inglés</option>
+    </select>
+    <label class="check"><input type="checkbox" id="math_parts"> Resaltar cada parte de las fórmulas mientras se leen (las fórmulas largas tardan ~1 s más en empezar)</label>
+    <label class="check"><input type="checkbox" id="always_on_top"> Mantener el lector encima de otras ventanas</label>
+  </fieldset>
+</main>
+<footer>
+  <span id="msg"></span>
+  <button class="btn" id="close">Cerrar</button>
+  <button class="btn primary" id="save">Guardar</button>
+</footer>
+<script src="settings.js"></script>
+</body>
+</html>

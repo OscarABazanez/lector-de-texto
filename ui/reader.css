@@ -1,0 +1,169 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --panel: #f8fafc;
+  --hover: #eef2f7;
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --hl: #fde68a;
+  --hl-fg: #111827;
+  --math-hl: rgba(37, 99, 235, 0.12);
+  --notice-bg: #fff7ed;
+  --notice-fg: #9a3412;
+  --skeleton: #eef1f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151c;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2a303b;
+    --panel: #181c24;
+    --hover: #232937;
+    --accent: #60a5fa;
+    --accent-fg: #0b1220;
+    --hl: #b45309;
+    --hl-fg: #ffffff;
+    --math-hl: rgba(96, 165, 250, 0.18);
+    --notice-bg: #3b1d0a;
+    --notice-fg: #fdba74;
+    --skeleton: #1f2430;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.7 "Segoe UI", system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.reading { background: #16a34a; }
+.dot.transcribing, .dot.thinking { background: #f59e0b; animation: pulse 1s ease-in-out infinite; }
+.dot.paused { background: var(--accent); }
+.dot.error { background: #dc2626; }
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+.detail { opacity: 0.8; }
+.badge {
+  margin-left: auto;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+
+.notice {
+  margin: 8px 12px 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px 28px;
+  scroll-behavior: smooth;
+}
+main p { margin: 0 0 0.8em; }
+main h2 { font-size: 1.15em; line-height: 1.4; margin: 0.2em 0 0.6em; }
+.placeholder { color: var(--muted); font-size: 15px; }
+
+.math-block { margin: 0.3em 0 1em; padding: 4px 6px; overflow-x: auto; }
+.m { border-radius: 6px; cursor: pointer; transition: background-color 0.1s; }
+.m.hl { background: var(--math-hl); box-shadow: 0 0 0 2px var(--accent); }
+/* Fragmento de la fórmula que se está leyendo (`\htmlData{part=i}`). */
+.m [data-part] { border-radius: 4px; transition: background-color 0.12s, box-shadow 0.12s; }
+.m [data-part].hlp { background: var(--hl); color: var(--hl-fg); box-shadow: 0 0 0 2px var(--hl); }
+
+.w { border-radius: 4px; padding: 0 1px; margin: 0 -1px; cursor: pointer; transition: background-color 0.08s; }
+.w:hover, .m:hover { background: var(--hover); }
+.w.hl, .w.hl:hover { background: var(--hl); color: var(--hl-fg); }
+
+.skeleton { display: grid; gap: 10px; padding-top: 6px; }
+.skeleton div { height: 14px; border-radius: 7px; background: var(--skeleton); animation: pulse 1.2s ease-in-out infinite; }
+.skeleton div:nth-child(1) { width: 55%; }
+.skeleton div:nth-child(2) { width: 92%; }
+.skeleton div:nth-child(3) { width: 78%; }
+
+#caption {
+  padding: 6px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.45;
+}
+#caption::before { content: "🔊 "; }
+#caption mark { background: var(--hl); color: var(--hl-fg); border-radius: 3px; padding: 0 2px; }
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+footer .spacer { flex: 1; }
+
+button {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+button:hover { background: var(--hover); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); color: var(--accent-fg); }
+button.primary:hover { filter: brightness(1.08); background: var(--accent); }
+button.on { color: var(--accent); }
+button.words { width: auto; padding: 0 6px; gap: 1px; grid-auto-flow: column; font: 600 11px "Segoe UI", system-ui, sans-serif; }
+button.words svg { width: 15px; height: 15px; }
+button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+button.primary svg { fill: currentColor; stroke-width: 0; }
+
+select {
+  height: 30px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px "Segoe UI", system-ui, sans-serif;
+}

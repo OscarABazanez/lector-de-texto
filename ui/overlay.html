@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Lector · selección</title>
+<style>
+  /* La cruz del sistema (1 px, colores invertidos) casi no se ve sobre el velo oscuro:
+     se usa una propia de alto contraste y líneas guía. */
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: transparent; user-select: none;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%230b1f4d' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='1.6' fill='white' stroke='%230b1f4d'/%3E%3C/svg%3E") 16 16, crosshair;
+  }
+  /* La captura congelada (como la Herramienta Recortes): así no importa que el video siga
+     corriendo ni que Windows dibuje negra una ventana transparente encima de él. */
+  body { background-size: 100% 100%; background-repeat: no-repeat; }
+  #veil { position: fixed; inset: 0; background: rgba(10, 14, 25, 0.28); }
+  body.dragging #veil { display: none; }
+  .guide { position: fixed; pointer-events: none; background: rgba(255, 255, 255, 0.85); box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.75); }
+  #gx { left: 0; right: 0; height: 1px; }
+  #gy { top: 0; bottom: 0; width: 1px; }
+  body.dragging .guide { display: none; }
+  #sel {
+    position: fixed; display: none; border: 2px solid #3b82f6; border-radius: 2px;
+    box-shadow: 0 0 0 100000px rgba(10, 14, 25, 0.42);
+  }
+  #size {
+    position: fixed; display: none; padding: 2px 8px; border-radius: 6px; pointer-events: none;
+    background: #2563eb; color: #fff; font: 12px "Segoe UI", system-ui, sans-serif; white-space: nowrap;
+  }
+  body.dragging #size { display: block; }
+  #hint {
+    position: fixed; top: 28px; left: 50%; transform: translateX(-50%);
+    padding: 8px 16px; border-radius: 8px; background: rgba(17, 24, 39, 0.88); color: #fff;
+    font: 14px "Segoe UI", system-ui, sans-serif; pointer-events: none; white-space: nowrap;
+  }
+  body.dragging #hint { display: none; }
+</style>
+</head>
+<body>
+<div id="veil"></div>
+<div id="gx" class="guide"></div>
+<div id="gy" class="guide"></div>
+<div id="sel"></div>
+<div id="size"></div>
+<div id="hint">Arrastra sobre el texto que quieres escuchar · Esc o clic derecho para cancelar</div>
+<script>
+  const { invoke, convertFileSrc } = window.__TAURI__.core;
+  const { listen } = window.__TAURI__.event;
+  const $ = (id) => document.getElementById(id);
+  const sel = $('sel');
+  let start = null;
+
+  function guides(x, y) {
+    $('gx').style.top = y + 'px';
+    $('gy').style.left = x + 'px';
+  }
+  function reset() {
+    start = null;
+    sel.style.display = 'none';
+    document.body.classList.remove('dragging');
+  }
+  function rect(e) {
+    const x = Math.min(start.x, e.clientX), y = Math.min(start.y, e.clientY);
+    return { x, y, w: Math.abs(e.clientX - start.x), h: Math.abs(e.clientY - start.y) };
+  }
+  function draw(e) {
+    const r = rect(e);
+    Object.assign(sel.style, { display: 'block', left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+    // Tamaño en píxeles reales de la pantalla, junto a la esquina del cursor.
+    const size = $('size');
+    size.textContent = `${Math.round(r.w * devicePixelRatio)} × ${Math.round(r.h * devicePixelRatio)}`;
+    size.style.left = Math.min(e.clientX + 14, innerWidth - size.offsetWidth - 4) + 'px';
+    size.style.top = Math.min(e.clientY + 18, innerHeight - size.offsetHeight - 4) + 'px';
+  }
+  function clearShot() {
+    document.body.style.backgroundImage = 'none';
+  }
+  function cancel() {
+    reset();
+    clearShot();
+    invoke('selection_cancel');
+  }
+
+  // Rust manda dónde está el cursor (fracciones del monitor) para dibujar las guías sin esperar a que se mueva.
+  listen('overlay:show', async ({ payload }) => {
+    reset();
+    clearShot();
+    guides(payload.x * innerWidth, payload.y * innerHeight);
+    const url = convertFileSrc(String(payload.shot), 'shot');
+    const t0 = performance.now();
+    const log = (msg) => invoke('ui_log', { msg: `selección: ${msg} (${Math.round(performance.now() - t0)} ms)` });
+    let frozen = false;
+    try {
+      const img = new Image();
+      await new Promise((ok, fail) => { img.onload = ok; img.onerror = fail; img.src = url; });
+      document.body.style.backgroundImage = `url("${url}")`;
+      frozen = true;
+    } catch (e) {
+      log(`no cargó la captura congelada: ${e}`);
+    }
+    invoke('overlay_ready', { id: payload.shot, frozen });
+  });
+  window.addEventListener('mousedown', (e) => {
+    if (e.button === 2) return cancel();
+    if (e.button !== 0) return;
+    start = { x: e.clientX, y: e.clientY };
+    document.body.classList.add('dragging');
+    draw(e);
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (start) draw(e);
+    else guides(e.clientX, e.clientY);
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (!start || e.button !== 0) return;
+    const r = rect(e);
+    reset();
+    if (r.w < 6 || r.h < 6) return cancel();
+    clearShot();
+    // Fracciones del monitor: así Rust recorta sin preocuparse por el DPI.
+    invoke('selection_done', {
+      rect: { x: r.x / innerWidth, y: r.y / innerHeight, w: r.w / innerWidth, h: r.h / innerHeight },
+    });
+  });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') cancel(); });
+  window.addEventListener('contextmenu', (e) => e.preventDefault());
+</script>
+</body>
+</html>
